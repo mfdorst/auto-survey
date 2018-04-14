@@ -9,35 +9,43 @@ receiptNumber = ["611", "884", "000", "034", "115"]
 
 driver = webdriver.Chrome("./resources/chromedriver")
 driver.get("http://myopinion.deltaco.com/")
-timeout = 5
+timeout = 2
 
 def wait(type, id):
     try:
         element_present = EC.presence_of_element_located((type, id))
         WebDriverWait(driver, timeout).until(element_present)
+        return True
     except TimeoutException:
         print "Timed out waiting for page to load"
+        return False
 
 def clickID(id):
-    wait(By.ID, id)
-    selection = driver.find_element_by_id(id)
-    selection.click()
+    if wait(By.ID, id):
+        selection = driver.find_element_by_id(id)
+        selection.click()
+
+def clickIDs(ids):
+    if wait(By.ID, ids[0]):
+        for id in ids:
+            selection = driver.find_element_by_id(id)
+            selection.click()
 
 def clickClass(classname):
-    wait(By.CLASS_NAME, classname)
-    selection = driver.find_element_by_class_name(classname)
-    selection.click()
+    if wait(By.CLASS_NAME, classname):
+        selection = driver.find_element_by_class_name(classname)
+        selection.click()
 
 def clickSelector(selector):
-    wait(By.CSS_SELECTOR, selector)
-    selection = driver.find_element_by_css_selector(selector)
-    selection.click()
-
-def clickSelectors(selectors):
-    wait(By.CSS_SELECTOR, selectors[0])
-    for selector in selectors:
+    if wait(By.CSS_SELECTOR, selector):
         selection = driver.find_element_by_css_selector(selector)
         selection.click()
+
+def clickSelectors(selectors):
+    if wait(By.CSS_SELECTOR, selectors[0]):
+        for selector in selectors:
+            selection = driver.find_element_by_css_selector(selector)
+            selection.click()
 
 # page 1
 
@@ -74,11 +82,11 @@ nextButton.click()
 
 # page 6
 clickSelectors(["div.option.option_522246_247022.last",
+                "div.option.option_522258_247026",
                 "div.option.option_522261_247027.last",
                 "div.option.option_522251_247025.last"])
 
-# wait for user to select '3'
-# TODO: fix this
+nextButton.click()
 
 # page 7
 clickID("prompt_247033")
@@ -120,8 +128,15 @@ selection.send_keys("I like del taco very much" * 6)
 nextButton.click()
 
 # page 14
-# wait for user to select "No Thanks, Continue"
-# TODO: fix this
+def find(driver):
+    element = driver.find_element_by_xpath("//a[@ng-click='clickNoThanks()']")
+    if element:
+        return element
+    else:
+        return False
+
+selection = WebDriverWait(driver, timeout).until(find)
+selection.click()
 
 # page 15
 clickID("option_525421_247666")
@@ -130,5 +145,13 @@ nextButton.click()
 
 clickID("option_745653_340084")
 
+# if the demographics page comes up then the previous click will fail
+
+clickIDs(["option_522363_247141",
+        "option_522373_247142"])
+
 nextButton.click()
 
+clickID("option_745653_340084")
+
+nextButton.click()
