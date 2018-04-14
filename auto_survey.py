@@ -1,122 +1,134 @@
 from selenium import webdriver
-import time
 
-driver = webdriver.Chrome("./resources/chromedriver")
-
-driver.get("http://myopinion.deltaco.com/")
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 receiptNumber = ["611", "884", "000", "034", "115"]
 
-wait_time = 1.5
+driver = webdriver.Chrome("./resources/chromedriver")
+driver.get("http://myopinion.deltaco.com/")
+timeout = 5
+
+def wait(type, id):
+    try:
+        element_present = EC.presence_of_element_located((type, id))
+        WebDriverWait(driver, timeout).until(element_present)
+    except TimeoutException:
+        print "Timed out waiting for page to load"
+
+def clickID(id):
+    wait(By.ID, id)
+    selection = driver.find_element_by_id(id)
+    selection.click()
+
+def clickClass(classname):
+    wait(By.CLASS_NAME, classname)
+    selection = driver.find_element_by_class_name(classname)
+    selection.click()
+
+def clickSelector(selector):
+    wait(By.CSS_SELECTOR, selector)
+    selection = driver.find_element_by_css_selector(selector)
+    selection.click()
+
+def clickSelectors(selectors):
+    wait(By.CSS_SELECTOR, selectors[0])
+    for selector in selectors:
+        selection = driver.find_element_by_css_selector(selector)
+        selection.click()
 
 # page 1
+
+wait(By.ID, "promptInput_249796_0")
+
 for i in range(0, 5):
     field = driver.find_element_by_id("promptInput_249796_{0}".format(i))
     field.send_keys(receiptNumber[i])
 
-
 nextButton = driver.find_element_by_id("nextPageLink")
 nextButton.click()
-time.sleep(wait_time)
 
 # page 2
-selection = driver.find_element_by_id("option_628407_289359")
-selection.click()
+clickID("option_628407_289359")
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 3
-selection = driver.find_element_by_id("option_522191_247003")
-selection.click()
+clickID("option_522191_247003")
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 4
-selection = driver.find_element_by_id("option_522209_247008")
-selection.click()
+clickID("option_522209_247008")
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 5
-selection = driver.find_element_by_css_selector("div.option.option_522230_247015.last")
-selection.click()
-selection = driver.find_element_by_css_selector("div.option.option_522235_247016.last")
-selection.click()
-selection = driver.find_element_by_css_selector("div.option.option_522220_247013.last")
-selection.click()
+clickSelectors(["div.option.option_522230_247015.last",
+                "div.option.option_522235_247016.last",
+                "div.option.option_522220_247013.last"])
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 6
-selection = driver.find_element_by_css_selector("div.option.option_522246_247022.last")
-selection.click()
-selection = driver.find_element_by_css_selector("div.option.option_522261_247027.last")
-selection.click()
-selection = driver.find_element_by_css_selector("div.option.option_522251_247025.last")
-selection.click()
+clickSelectors(["div.option.option_522246_247022.last",
+                "div.option.option_522261_247027.last",
+                "div.option.option_522251_247025.last"])
 
 # wait for user to select '3'
-time.sleep(3)
-
-nextButton.click()
-time.sleep(wait_time)
+# TODO: fix this
 
 # page 7
-selection = driver.find_element_by_id("prompt_247033")
-selection.click()
+clickID("prompt_247033")
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 8
-selection = driver.find_element_by_id("option_522270_247036")
-selection.click()
+clickID("option_522270_247036")
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 9
-selection = driver.find_element_by_id("prompt_305144")
-selection.click()
+clickID("prompt_305144")
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 10
-selection = driver.find_element_by_class_name("option_772689_351323")
-selection.click()
+clickClass("option_772689_351323")
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 11
-selection = driver.find_element_by_id("prompt_351327")
-selection.click()
+clickID("prompt_351327")
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 12
-selection = driver.find_element_by_css_selector("div.option.option_522349_247119.last")
-selection.click()
-selection = driver.find_element_by_css_selector("div.option.option_522354_247120.last")
-selection.click()
+clickSelectors(["div.option.option_522349_247119.last",
+                "div.option.option_522354_247120.last"])
 
 nextButton.click()
-time.sleep(wait_time)
 
 # page 13
+wait(By.ID, "commentArea")
 selection = driver.find_element_by_id("commentArea")
 selection.clear()
 selection.send_keys("I like del taco very much" * 6)
 
 nextButton.click()
-time.sleep(wait_time)
 
-time.sleep(4)
+# page 14
+# wait for user to select "No Thanks, Continue"
+# TODO: fix this
 
-driver.quit()
+# page 15
+clickID("option_525421_247666")
+
+nextButton.click()
+
+clickID("option_745653_340084")
+
+nextButton.click()
+
