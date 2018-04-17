@@ -1,13 +1,17 @@
 from selenium import webdriver
-
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
 
-receiptNumber = ["611", "884", "000", "034", "115"]
+receiptNumber = ["301", "084", "000", "064", "113"]
 
-driver = webdriver.Chrome("./resources/chromedriver")
+options = Options()
+# options.add_argument('--headless')
+options.add_argument('--window-size=1920,1080')
+driver = webdriver.Chrome("./resources/chromedriver", chrome_options=options)
+options.add_argument('headless')
 driver.get("http://myopinion.deltaco.com/")
-timeout = 3
+timeout = 5
 
 def actionBy(method, selector, action):
     def find(driver):
@@ -25,11 +29,7 @@ def actionBy(method, selector, action):
         pass
 
 def clickBy(method, selector):
-    def click(element):
-        element.click()
-
-    actionBy(method, selector, click)
-
+    actionBy(method, selector, lambda e: e.click())
 
 # page 1
 for i in range(0, 5):
@@ -118,20 +118,38 @@ clickBy('id', "option_525421_247666")
 nextButton.click()
 
 # page 16
-clickBy('id', "option_745653_340084")
 
-nextButton.click()
+def whichID(id1, id2):
+    def find(driver):
+        if driver.find_element_by_id(id1):
+            return id1
+        if driver.find_element_by_id(id2):
+            return id2
+        # if neither id is found
+        return False
 
-# if the demographics page comes up then the previous click will fail
+    try:
+        # keep calling find until either it returns a result, or the timeout period ends
+        print 'waiting'
+        id = WebDriverWait(driver, timeout).until(find)
+        print 'done waiting'
+        return id
+    except TimeoutException:
+        print 'timeout exception'
+        return False
 
-clickBy('id', "option_522363_247141")
-clickBy('id', "option_522373_247142")
+id = whichID("option_745653_340084", "option_522363_247141")
 
-nextButton.click()
-
-# we have to repeat this click, which was attempted before
-# this time it will succeed
-clickBy('id', "option_745653_340084")
+if (id == "option_745653_340084"):
+    # final page
+    clickBy('id', "option_745653_340084")
+else:
+    # demographics page
+    clickBy('id', "option_522363_247141")
+    clickBy('id', "option_522373_247142")
+    nextButton.click()
+    #final page
+    clickBy('id', "option_745653_340084")
 
 nextButton.click()
 
