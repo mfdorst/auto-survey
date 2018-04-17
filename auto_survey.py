@@ -22,7 +22,6 @@ def actionBy(method, selector, action):
         return element if element else False
 
     try:
-        # keep calling find until either it returns a result, or the timeout period ends
         element = WebDriverWait(driver, timeout).until(find)
         action(element)
     except TimeoutException:
