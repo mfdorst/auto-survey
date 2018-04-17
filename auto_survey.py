@@ -2,8 +2,10 @@ from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
-receiptNumber = ["301", "084", "000", "064", "113"]
+receiptNumber = ["942", "394", "000", "072", "113"]
 
 options = Options()
 # options.add_argument('--headless')
@@ -119,27 +121,17 @@ nextButton.click()
 # page 16
 
 def whichID(id1, id2):
-    def find(driver):
-        if driver.find_element_by_id(id1):
-            return id1
-        if driver.find_element_by_id(id2):
-            return id2
-        # if neither id is found
-        return False
-
     try:
-        # keep calling find until either it returns a result, or the timeout period ends
-        print 'waiting'
-        id = WebDriverWait(driver, timeout).until(find)
-        print 'done waiting'
-        return id
+        xpath = "//*[@id='{0}' or @id='{1}']".format(id1, id2)
+        condition = EC.presence_of_element_located((By.XPATH, xpath))
+        id_value = WebDriverWait(driver, timeout).until(condition).get_attribute("id")
+        return id_value
     except TimeoutException:
-        print 'timeout exception'
-        return False
+        return None
 
-id = whichID("option_745653_340084", "option_522363_247141")
+id_val = whichID("option_745653_340084", "option_522363_247141")
 
-if (id == "option_745653_340084"):
+if (id_val == "option_745653_340084"):
     # final page
     clickBy('id', "option_745653_340084")
 else:
